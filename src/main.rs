@@ -3,6 +3,7 @@ fn main() {
     println!("{}", greetings);
     greet("mars");
     strings();
+    Assignments();
 }
 
 fn greet(target: &str) {
@@ -48,3 +49,27 @@ fn strings() {
 
 // &string method can be used anywhere. It automatically turns into the &str
 // if the method needs it.
+
+/* --------------------------------- Variable Assignments & Mutability ----------------------------------------- */
+
+fn Assignments() {
+    let mut mutable = 1;
+
+    println!("{}", mutable);
+
+    mutable = 3;
+
+    println!("{}", mutable);
+
+    let twich = "somesome";
+
+    println!("{}", twich);
+
+    let twich = 123;
+
+    println!("{}", twich);
+}
+
+// re-assignment value to a variable must of the same time.
+
+// we can assign a different type to a variable by re declaring it using the let keyword
