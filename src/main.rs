@@ -1,4 +1,5 @@
-use std::{collections::HashMap, fs::read_to_string};
+use std::{collections::HashMap, fmt::Display, fmt::Result, fs::read_to_string};
+
 fn main() {
     let greetings = "Hello World!";
     println!("{}", greetings);
@@ -185,33 +186,133 @@ fn struct_interfaces_objects() {
         color: String,
     }
 
+    struct HouseLight {
+        on: bool,
+    }
+
     impl TrafficLight {
         pub fn new() -> Self {
             Self {
-                color: "red".to_owned(),
+                color: ColorMatter::Red.to_string(),
             }
         }
 
         pub fn get_state(&self) -> &String {
             &self.color
         }
+
+        pub fn turn_green(&mut self) {
+            self.color = ColorMatter::Green.to_string()
+        }
+
+        pub fn turn_yellow(&mut self) {
+            self.color = ColorMatter::Yellow.to_string()
+        }
     }
 
-    impl std::fmt::Display for TrafficLight {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    impl Display for TrafficLight {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result {
             write!(f, "TrafficLight color is {}", self.color)
         }
     }
 
-    let dark = TrafficLight::new();
+    impl Display for HouseLight {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result {
+            write!(
+                f,
+                "House light is {}",
+                if self.on == true { "on" } else { "off" }
+            )
+        }
+    }
+
+    impl HouseLight {
+        pub fn new() -> Self {
+            Self { on: false }
+        }
+
+        pub fn get_state(&self) -> bool {
+            self.on
+        }
+    }
+
+    let mut dark = TrafficLight::new();
 
     let light = TrafficLight {
         color: "red".to_owned(),
     };
 
+    enum ColorMatter {
+        Red,
+        Yellow,
+        Green,
+    }
+
+    impl Display for ColorMatter {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result {
+            let color_string = match self {
+                ColorMatter::Red => "Red",
+                ColorMatter::Green => "Green",
+                ColorMatter::Yellow => "Yellow",
+            };
+
+            write!(f, "{}", color_string)
+        }
+    }
+
+    trait Light {
+        fn get_name(&self) -> &str;
+        fn get_state(&self) -> &dyn std::fmt::Debug;
+    }
+
+    impl Light for HouseLight {
+        fn get_name(&self) -> &str {
+            "House Light"
+        }
+
+        fn get_state(&self) -> &dyn std::fmt::Debug {
+            &self.on
+        }
+    }
+
+    impl Light for TrafficLight {
+        fn get_name(&self) -> &str {
+            "Traffic Light"
+        }
+
+        fn get_state(&self) -> &dyn std::fmt::Debug {
+            &self.color
+        }
+    }
+
+    fn print_state(light: &impl Light) {
+        println!("{:?}", light.get_name())
+    }
+
     println!("{}", light);
     println!("{:?}", dark);
-    println!("{}", dark.get_state())
+    dark.turn_green();
+    dark.turn_yellow();
+    println!("{}", dark.get_state());
+
+}
+
+// we send the reference of self aka borrow due to giving ownership will result in
+// losing the access of the object
+
+// to make mutable version of the traffic light we need to pass &mut reference
+
+/* --------------------------------- Enums  ----------------------------------------- */
+
+fn colors() {
+    #[derive(Debug)]
+    enum ColorMatter {
+        Red,
+        Yellow,
+        Green,
+    }
+
+    println!("{:?}", ColorMatter::Red);
 }
 
 /* --------------------------------- Caller Function ----------------------------------------- */
@@ -234,4 +335,6 @@ fn caller() {
     hash_mapp();
 
     struct_interfaces_objects();
+
+    colors();
 }
