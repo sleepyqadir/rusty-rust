@@ -2,20 +2,7 @@ use std::{collections::HashMap, fs::read_to_string};
 fn main() {
     let greetings = "Hello World!";
     println!("{}", greetings);
-
-    greet("mars");
-
-    strings();
-
-    assignments();
-
-    temp();
-
-    borrowing();
-
-    everthing_return_something();
-
-    add_numbers(5, 6);
+    caller();
 }
 
 fn greet(target: &str) {
@@ -162,4 +149,89 @@ fn everthing_return_something() {
 
 fn add_numbers(left: i64, right: i64) -> i64 {
     return left + right;
+}
+
+/* --------------------------------- HashMap ----------------------------------------- */
+
+fn hash_mapp() {
+    let mut map = HashMap::new();
+
+    map.insert("Key1", "Hello");
+    map.insert("Key2", "World");
+
+    println!("{:?}", map.get("Key1"));
+    println!("{:?}", map.get("Key2"));
+    println!("{:?}", map.get("Key3"));
+
+    let value = map.get("Key2");
+
+    println!(
+        "{}",
+        if value.is_none() == true {
+            "None"
+        } else {
+            value.unwrap()
+        }
+    );
+
+    println!("{}", map.get("key4").unwrap_or(&"Nothing"));
+}
+
+/* --------------------------------- Structs ----------------------------------------- */
+
+fn struct_interfaces_objects() {
+    #[derive(Debug)]
+    struct TrafficLight {
+        color: String,
+    }
+
+    impl TrafficLight {
+        pub fn new() -> Self {
+            Self {
+                color: "red".to_owned(),
+            }
+        }
+
+        pub fn get_state(&self) -> &String {
+            &self.color
+        }
+    }
+
+    impl std::fmt::Display for TrafficLight {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "TrafficLight color is {}", self.color)
+        }
+    }
+
+    let dark = TrafficLight::new();
+
+    let light = TrafficLight {
+        color: "red".to_owned(),
+    };
+
+    println!("{}", light);
+    println!("{:?}", dark);
+    println!("{}", dark.get_state())
+}
+
+/* --------------------------------- Caller Function ----------------------------------------- */
+
+fn caller() {
+    greet("mars");
+
+    strings();
+
+    assignments();
+
+    temp();
+
+    borrowing();
+
+    everthing_return_something();
+
+    add_numbers(5, 6);
+
+    hash_mapp();
+
+    struct_interfaces_objects();
 }
