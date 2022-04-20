@@ -1,9 +1,13 @@
 use std::{collections::HashMap, fmt::Display, fmt::Result, fs::read_to_string};
 
+mod sub_module;
+
 fn main() {
     let greetings = "Hello World!";
     println!("{}", greetings);
     caller();
+
+    sub_module::print(sub_module::submodule::MSG);
 }
 
 fn greet(target: &str) {
@@ -294,7 +298,6 @@ fn struct_interfaces_objects() {
     dark.turn_green();
     dark.turn_yellow();
     println!("{}", dark.get_state());
-
 }
 
 // we send the reference of self aka borrow due to giving ownership will result in
@@ -314,6 +317,8 @@ fn colors() {
 
     println!("{:?}", ColorMatter::Red);
 }
+
+/* --------------------------------- Modules ----------------------------------------- */
 
 /* --------------------------------- Caller Function ----------------------------------------- */
 
