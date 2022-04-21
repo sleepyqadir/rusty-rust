@@ -1,11 +1,20 @@
-use std::{collections::HashMap, fmt::Display, fmt::Result, fs::read_to_string};
+use std::{collections::HashMap, error::Error, fmt::Display, fs::read_to_string};
+
+use std::fmt::Result as _Result;
+
+use std::time::Instant;
 
 mod sub_module;
 
-fn main() {
+mod iterators;
+
+mod async_rust;
+
+#[tokio::main]
+async fn main() {
     let greetings = "Hello World!";
     println!("{}", greetings);
-    caller();
+    caller().await;
 
     sub_module::print(sub_module::submodule::MSG);
 }
@@ -43,10 +52,49 @@ fn strings() {
 
     print_type_of(&"Hi!");
     print_type_of(&String::new());
+
+    print_str("Hello world");
+
+    let todo = "Complete rust project.".to_owned();
+
+    print_str(&todo);
+
+    some_string("Hello kaise hooo yaaar");
+
+    some_string(todo);
+
+    let string_proper = "String proper".to_owned();
+    let string_slice = "string slice";
+    some_string(string_slice);
+    some_string("Literal string");
+    some_string(string_proper);
+
+    need_string("need string method");
+
+    where_string("Where is my string");
 }
 
 fn print_type_of<T>(_: &T) {
     println!("Type of {}", std::any::type_name::<T>());
+}
+
+fn where_string<T>(message: T)
+where
+    T: ToString,
+{
+    println!("{}", message.to_string());
+}
+
+fn need_string(message: impl ToString) {
+    println!("{}", message.to_string());
+}
+
+fn print_str(text: &str) {
+    println!("{}", text);
+}
+
+fn some_string<T: ToString>(message: T) {
+    println!("{}", message.to_string());
 }
 
 // &str is the primitive type, an immutable reference to the String
@@ -62,6 +110,9 @@ fn print_type_of<T>(_: &T) {
 // if the method needs it.
 
 // &str are the pointer to the substring in other string data
+
+// for a function that accepts aribitary any type of string and called from where ever
+// use ToString there
 
 /* --------------------------------- Variable Assignments & Mutability ----------------------------------------- */
 
@@ -215,13 +266,13 @@ fn struct_interfaces_objects() {
     }
 
     impl Display for TrafficLight {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> _Result {
             write!(f, "TrafficLight color is {}", self.color)
         }
     }
 
     impl Display for HouseLight {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> _Result {
             write!(
                 f,
                 "House light is {}",
@@ -253,7 +304,7 @@ fn struct_interfaces_objects() {
     }
 
     impl Display for ColorMatter {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> _Result {
             let color_string = match self {
                 ColorMatter::Red => "Red",
                 ColorMatter::Green => "Green",
@@ -298,12 +349,16 @@ fn struct_interfaces_objects() {
     dark.turn_green();
     dark.turn_yellow();
     println!("{}", dark.get_state());
+
+    print_state(&light);
 }
 
 // we send the reference of self aka borrow due to giving ownership will result in
 // losing the access of the object
 
 // to make mutable version of the traffic light we need to pass &mut reference
+
+// Everthing is private itself except traits and enums
 
 /* --------------------------------- Enums  ----------------------------------------- */
 
@@ -316,13 +371,109 @@ fn colors() {
     }
 
     println!("{:?}", ColorMatter::Red);
+    println!("{:?}", ColorMatter::Yellow);
+    println!("{:?}", ColorMatter::Green);
 }
 
 /* --------------------------------- Modules ----------------------------------------- */
 
+/* --------------------------------- Options ----------------------------------------- */
+
+pub enum Options<T> {
+    None,
+    Some(T),
+}
+
+fn options() {
+    let some = returns_some();
+    println!("{:?}", some);
+
+    let none = return_none().unwrap_or("This return the none value".to_owned());
+
+    println!("{:?}", none);
+
+    // arrow functions
+
+    // (x) => x +2
+
+    // |arg1: number| agr1 +2
+
+    let none_or_else =
+        return_none().unwrap_or_else(|| format!("This is the tempary string {:?}", Instant::now()));
+
+    println!("{}", none_or_else);
+
+    let may_none = return_none().unwrap_or_default();
+
+    println!("{}", may_none);
+
+    let match_value = match returns_some() {
+        Some(val) => val,
+        None => "My default value".to_owned(),
+    };
+
+    println!("match {{...}}: {:?}", match_value);
+}
+
+fn returns_some() -> Option<String> {
+    Some(String::from("Hello"))
+}
+
+fn return_none() -> Option<String> {
+    None
+}
+
+/* --------------------------------- Results ----------------------------------------- */
+
+#[derive(Debug)]
+pub enum Result<T, E> {
+    Ok(T),
+    Err(E),
+}
+
+fn results() {
+    let ok = result_ok();
+
+    println!("{:?}", ok);
+
+    let err = result_err();
+
+    println!("{:?}", err);
+}
+
+fn result_err() -> Result<String, MyError> {
+    Result::Err(MyError("Invalid token".to_owned()))
+}
+
+fn result_ok() -> Result<String, MyError> {
+    Result::Ok("worked fine!".to_owned())
+}
+
+#[derive(Debug)]
+struct MyError(String);
+
+/* --------------------------------- Error Function ----------------------------------------- */
+
+// fn error_main() {
+//     let html = render_markdown()?;
+//     println!("{}", html);
+//     Ok(())
+// }
+
+#[derive(Debug)]
+enum MyCallError {}
+
+impl Error for MyCallError {}
+
+impl Display for MyCallError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> _Result {
+        write!(f, "Error")
+    }
+}
+
 /* --------------------------------- Caller Function ----------------------------------------- */
 
-fn caller() {
+async fn caller() {
     greet("mars");
 
     strings();
@@ -342,4 +493,12 @@ fn caller() {
     struct_interfaces_objects();
 
     colors();
+
+    options();
+
+    results();
+
+    iterators::array_iterators_conditions();
+
+    async_rust::async_rust().await
 }

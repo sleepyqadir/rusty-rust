@@ -5,3 +5,4 @@ pub fn print(msg: &str) {
 pub mod submodule {
     pub const MSG: &str = "Hello world!";
 }
+
